@@ -5,10 +5,11 @@
 #include <memory>
 #include "Random64.h"
 
+std::string folder="datos2";
 std::ofstream datos;
 std::ofstream datos_new;
 std::ofstream config;
-const int N_cells=300;
+const int N_cells=180;
 int t_max;
 
 int lines=0;
@@ -65,9 +66,7 @@ class BTW_model
 				for(int ii=0;ii<N_cells;ii++)
 				{for(int jj=0;jj<N_cells;jj++)
 					{cells[ii][jj]=rand64.r()*4;}	
-				}
-
-				
+				}	
 			}
 
 		void start_fractal(int grains)
@@ -154,16 +153,20 @@ class BTW_model
 				out.close();
 			}
 
-		void add_grain(Crandom &rand64)
+		void add_grain(Crandom &rand64, bool in_center)
 			{	
 				for (int ii=0;ii<N_cells;ii++)
 					{for (int jj=0;jj<N_cells;jj++)
 						{cells_new[ii][jj]=cells[ii][jj];}}
 
-				int x=rand64.r()*N_cells;
-				int y=rand64.r()*N_cells;
-				cells_new[x][y]=cells[x][y]+1;
+
+				if(in_center)
+					{cells_new[N_cells/2][N_cells/2]+=1;}
+				else
+					{cells_new[int(rand64.r()*N_cells)][int(rand64.r()*N_cells)]+=1;}
+
 			}
+
 
 		void topple(bool print=false)
 			{
@@ -224,12 +227,12 @@ class BTW_model
 
 
 				if (true)
-					{write_bin("datos/datos"+std::to_string(time) +".bin");}
+					{write_bin(folder+"/datos"+std::to_string(time) +".bin");}
 
 				int piles=count_piles();
 
 				if(piles==0)
-					{add_grain(rand64);
+					{add_grain(rand64,true);
 					grains_added=true;}
 				else
 					{topple(false);}
@@ -246,12 +249,12 @@ class BTW_model
 
 int main(void)
 	{	
-		t_max=40000;
+		t_max=100000;
 		Crandom rand64(1);
 		BTW_model model;
-		model.start_fractal(50000);
+		model.start(0);
 
-		config.open("datos/config.csv");
+		config.open(folder+"/config.csv");
 		write_config();
 		config.close();
 

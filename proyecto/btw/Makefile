@@ -1,5 +1,5 @@
 # wirte a makefile that cleans all csv files in the data folder
-all: clean  run
+all:  run
 	@echo "Cleaning all csv files in the data folder"
 
 compile:
@@ -11,5 +11,4 @@ run: compile
 	./main.exe
 
 clean:
-	for %%X in (datos\*.csv) do del /Q "%%X"
-	for %%X in (datos\*.bin) do del /Q "%%X"
+	for %%X in (datos2\*.bin) do del /Q "%%X"
