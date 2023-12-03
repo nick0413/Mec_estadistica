@@ -8,7 +8,7 @@
 std::ofstream datos;
 std::ofstream datos_new;
 std::ofstream config;
-const int N_cells=30;
+const int N_cells=300;
 int t_max;
 
 int lines=0;
@@ -19,7 +19,7 @@ void write_config(void)
 		// config<<t_max<<std::endl;
 	}
 
-void displayProgressBar(float progress, int barWidth = 50, std::string line="=")
+void displayProgressBar(float progress, int barWidth = 70, std::string line="=")
 	{
 		std::cout << "[";
 		int pos = static_cast<int>(progress * barWidth);
@@ -45,6 +45,7 @@ class BTW_model
 		int last_y=0;
 		bool toppling=false;
 		int topple_count=0;	
+		bool grains_added=false;
 
 
 	
@@ -65,6 +66,21 @@ class BTW_model
 				{for(int jj=0;jj<N_cells;jj++)
 					{cells[ii][jj]=rand64.r()*4;}	
 				}
+
+				
+			}
+
+		void start_fractal(int grains)
+			{
+				int x_center=N_cells/2;
+				int y_center=N_cells/2;
+
+				for(int ii=0;ii<N_cells;ii++)
+				{for(int jj=0;jj<N_cells;jj++)
+					{cells[ii][jj]=0;}	
+				}
+				cells[x_center][y_center]=grains;
+
 			}
 		int count_piles(void)
 			{	int count=0;
@@ -127,6 +143,15 @@ class BTW_model
 						datos_new<<std::endl;
 					}
 				// std::cout<<t<<" "<<ii<<" "<<jj<<std::endl;
+			}
+
+		void write_bin(std::string filename)
+			{
+				std::ofstream out(filename, std::ios::binary);
+				for(int i = 0; i < N_cells; i++)
+					for(int j = 0; j < N_cells; j++)
+						out.write((char*)&cells[i][j], sizeof(cells[i][j]));
+				out.close();
 			}
 
 		void add_grain(Crandom &rand64)
@@ -194,22 +219,23 @@ class BTW_model
 			}
 		
 		void time_step(Crandom &rand64, int time)
-			{
+			{	
+				update_new();
+
+
 				if (true)
-					{save_data(time);}
+					{write_bin("datos/datos"+std::to_string(time) +".bin");}
 
 				int piles=count_piles();
-				std::cout<<time<<"->"<<piles<<std::endl;
+
 				if(piles==0)
 					{add_grain(rand64);
-					std::cout<<"adding grain"<<std::endl;
-					}
+					grains_added=true;}
 				else
 					{topple(false);}
 
 
-				
-
+		
 				update_cells();
 
 
@@ -220,10 +246,10 @@ class BTW_model
 
 int main(void)
 	{	
-		t_max=300;
+		t_max=40000;
 		Crandom rand64(1);
 		BTW_model model;
-		model.start(0);
+		model.start_fractal(50000);
 
 		config.open("datos/config.csv");
 		write_config();
@@ -231,14 +257,16 @@ int main(void)
 
 		for(int time=0;time<t_max;time++)
 			{	
-				datos.open("datos/datos"+std::to_string(time) +".csv",std::ios::app);
-				// datos_new.open("datos/datos"+std::to_string(time) +"_new.csv",std::ios::app);
 				model.time_step(rand64,time);
 				datos.close();
-				// datos_new.close();
-				std::cout<<"---------"<<std::endl;
+
+				displayProgressBar((float)time/t_max);
 
 			}
+		if(model.grains_added)
+			{std::cout<<"grains added"<<std::endl;}
+		else
+			{std::cout<<"no grains added"<<std::endl;}
 
 	}
 
