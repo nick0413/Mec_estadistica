@@ -7,12 +7,12 @@
 #include <string>
 
 std::ofstream datos;
-std::ofstream datos_new;
+std::ofstream config;
 
 std::string folder="datos";
 
-const int N_cells=4;
-
+const int N_cells=200;
+int t_max=500;
 /*
 El valor de una celda lo vamos a definir asi:
 c = 0: vacio
@@ -169,6 +169,12 @@ class Forest_model
 
 };
 
+void write_config(void)
+	{
+		config<<N_cells<<","<<t_max<< std::endl;
+
+	}
+
 
 int main(void)
 {	
@@ -176,8 +182,15 @@ int main(void)
 	Crandom rand64(1);
 	Forest_model forest(rand64,0.5,0.5);
 
+	config.open(folder+"/config.csv");
+	write_config();
+	config.close();
+
+
+
 	
-	int t_max=100;
+	
+	
 	for(int time=0;time<t_max;time++)
 		{	
 
