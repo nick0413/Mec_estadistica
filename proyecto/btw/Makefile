@@ -11,4 +11,4 @@ run: compile
 	./main.exe
 
 clean:
-	for %%X in (datos2\*.bin) do del /Q "%%X"
+	for %%X in (datos3\*.bin) do del /Q "%%X"

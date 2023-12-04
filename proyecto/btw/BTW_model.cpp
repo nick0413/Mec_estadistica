@@ -5,22 +5,23 @@
 #include <memory>
 #include "Random64.h"
 
-std::string folder="datos2";
+std::string folder="datos4";
 std::ofstream datos;
 std::ofstream datos_new;
 std::ofstream config;
-const int N_cells=180;
+const int N_cells=250;
 int t_max;
+int start_time=25;
 
 int lines=0;
 
 void write_config(void)
 	{
-		config<<N_cells<<","<<t_max<<std::endl;
+		config<<N_cells<<","<<t_max<<","<<start_time<< std::endl;
 		// config<<t_max<<std::endl;
 	}
 
-void displayProgressBar(float progress, int barWidth = 70, std::string line="=")
+void displayProgressBar(float progress, int barWidth = 70, std::string line="=",int int_progress=0)
 	{
 		std::cout << "[";
 		int pos = static_cast<int>(progress * barWidth);
@@ -34,6 +35,7 @@ void displayProgressBar(float progress, int barWidth = 70, std::string line="=")
 					{std::cout << " ";}
 			}
 		std::cout << "] " << static_cast<int>(progress * 100.0)<< "%\r";
+		if(int_progress!=0){ std::cout<<int_progress;}
 		std::cout.flush();
 	}
 
@@ -117,15 +119,10 @@ class BTW_model
 				int jj=0;
 				for(ii=0;ii<N_cells;ii++)
 					{
-						
 						for(jj=0;jj<N_cells;jj++)
-							{
-								datos<<cells[ii][jj]<<",";
-								// std::cout<<ii<<" "<<jj<<std::endl;
-							}
+							{datos<<cells[ii][jj]<<",";}
 						datos<<std::endl;
 					}
-				// std::cout<<t<<" "<<ii<<" "<<jj<<std::endl;
 			}
 		void save_new(int t,bool print=false)
 			{	
@@ -226,7 +223,7 @@ class BTW_model
 				update_new();
 
 
-				if (true)
+				if (time>=start_time)
 					{write_bin(folder+"/datos"+std::to_string(time) +".bin");}
 
 				int piles=count_piles();
@@ -249,7 +246,7 @@ class BTW_model
 
 int main(void)
 	{	
-		t_max=100000;
+		t_max=30;
 		Crandom rand64(1);
 		BTW_model model;
 		model.start(0);
@@ -263,13 +260,15 @@ int main(void)
 				model.time_step(rand64,time);
 				datos.close();
 
-				displayProgressBar((float)time/t_max);
+				displayProgressBar((float)time/t_max, 70,"=",time);
 
 			}
 		if(model.grains_added)
 			{std::cout<<"grains added"<<std::endl;}
 		else
 			{std::cout<<"no grains added"<<std::endl;}
+
+		return 0;
 
 	}
 
