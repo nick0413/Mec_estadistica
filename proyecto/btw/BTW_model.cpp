@@ -4,14 +4,14 @@
 #include <exception>
 #include <memory>
 #include "Random64.h"
-
-std::string folder="datos4";
+#include <omp.h>
+std::string folder="datos";
 std::ofstream datos;
 std::ofstream datos_new;
 std::ofstream config;
-const int N_cells=250;
+const int N_cells=200;
 int t_max;
-int start_time=25;
+int start_time=98000;
 
 int lines=0;
 
@@ -134,11 +134,9 @@ class BTW_model
 						for(jj=0;jj<N_cells;jj++)
 							{
 								datos_new<<cells_new[ii][jj]<<",";
-								// std::cout<<ii<<" "<<jj<<std::endl;
 							}
 						datos_new<<std::endl;
 					}
-				// std::cout<<t<<" "<<ii<<" "<<jj<<std::endl;
 			}
 
 		void write_bin(std::string filename)
@@ -152,9 +150,7 @@ class BTW_model
 
 		void add_grain(Crandom &rand64, bool in_center)
 			{	
-				for (int ii=0;ii<N_cells;ii++)
-					{for (int jj=0;jj<N_cells;jj++)
-						{cells_new[ii][jj]=cells[ii][jj];}}
+				update_new();
 
 
 				if(in_center)
@@ -166,7 +162,8 @@ class BTW_model
 
 
 		void topple(bool print=false)
-			{
+			{	
+				#pragma omp parallel for
 				for(int ii=0;ii<N_cells;ii++)
 					{for(int jj=0;jj<N_cells;jj++)
 						{	
@@ -246,10 +243,10 @@ class BTW_model
 
 int main(void)
 	{	
-		t_max=30;
+		t_max=100000;
 		Crandom rand64(1);
 		BTW_model model;
-		model.start(0);
+		model.start_fractal(0);
 
 		config.open(folder+"/config.csv");
 		write_config();

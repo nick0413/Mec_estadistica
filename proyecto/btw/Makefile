@@ -4,11 +4,11 @@ all:  run
 
 compile:
 	@echo "Compiling the program"
-	g++ -o main.exe BTW_model.cpp -O3
+	g++ -o main.exe BTW_model.cpp -O3 -fopenmp
 
 run: compile
 	@echo "Running the program"
 	./main.exe
 
 clean:
-	for %%X in (datos3\*.bin) do del /Q "%%X"
+	for %%X in (datos\*.bin) do del /Q "%%X"
